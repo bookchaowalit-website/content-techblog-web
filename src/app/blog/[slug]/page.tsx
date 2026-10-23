@@ -4,9 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import React from "react";
-import fs from 'fs';
-import path from 'path';
-import matter from 'gray-matter';
+import { getAllPosts, getPost } from '@/lib/posts';
 import { compileMDX } from 'next-mdx-remote/rsc';
 import remarkToc from 'remark-toc';
 import ProgressBar from '@/components/ProgressBar';
@@ -26,18 +24,13 @@ interface BlogPost {
 }
 
 async function getBlogPost(slug: string): Promise<BlogPost | null> {
-  const filePath = path.join(process.cwd(), 'content/blog', `${slug}.mdx`);
-  if (!fs.existsSync(filePath)) {
+  const post = getPost(slug);
+  if (!post) {
     return null;
   }
-  const fileContents = fs.readFileSync(filePath, 'utf8');
-  const { data, content } = matter(fileContents);
-  const wordCount = content.split(/\s+/).length;
-  const readingTime = Math.ceil(wordCount / 200);
   const mdxSource = await compileMDX({
-    source: content,
+    source: post.content,
     options: {
-      parseFrontmatter: true,
       mdxOptions: {
         remarkPlugins: [remarkToc],
       },
@@ -46,7 +39,7 @@ async function getBlogPost(slug: string): Promise<BlogPost | null> {
     // overrides (including the copy-to-clipboard button) never applied —
     // that file's convention only auto-wires for @next/mdx page routes,
     // not next-mdx-remote's compileMDX(), which needs components passed
-    // explicitly. Every blog post was rendering as unstyled default HTML.
+    // explicitly.
     //
     // useMDXComponents is the fixed name required by the MDX/@next/mdx
     // convention, not an actual React Hook: its body calls no hooks
@@ -55,22 +48,11 @@ async function getBlogPost(slug: string): Promise<BlogPost | null> {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     components: useMDXComponents({}),
   });
-  return {
-    slug,
-    title: data.title,
-    date: data.date,
-    excerpt: data.excerpt,
-    author: data.author,
-    // Normalize tags: accept array, comma-separated string, or default to empty array
-    tags: Array.isArray(data.tags)
-      ? data.tags
-      : typeof data.tags === 'string'
-      ? data.tags.split(',').map((t) => t.trim()).filter(Boolean)
-      : [],
-    content: mdxSource.content,
-    readingTime,
-    sizeBytes: Buffer.byteLength(fileContents, "utf8"),
-  };
+  return { ...post, content: mdxSource.content, readingTime: post.readingMinutes };
+}
+
+export function generateStaticParams() {
+  return getAllPosts().map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({
@@ -137,26 +119,26 @@ export default async function BlogPostPage({
     "@type": "BlogPosting",
     "headline": post.title,
     "description": post.excerpt,
-    "image": `https://tech.bookchaowalit.com/og-blog-${slug}.jpg`,
+    "image": `https://techblog.bookchaowalit.com/og-blog-${slug}.jpg`,
     "author": {
       "@type": "Person",
       "name": post.author,
-      "url": "https://tech.bookchaowalit.com"
+      "url": "https://techblog.bookchaowalit.com"
     },
     "publisher": {
       "@type": "Organization",
       "name": "Chaowalit Greepoke (Book) Tech Blog",
-      "url": "https://tech.bookchaowalit.com",
+      "url": "https://techblog.bookchaowalit.com",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://tech.bookchaowalit.com/logo.png"
+        "url": "https://techblog.bookchaowalit.com/logo.png"
       }
     },
     "datePublished": post.date,
     "dateModified": post.date,
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": `https://tech.bookchaowalit.com/blog/${slug}`
+      "@id": `https://techblog.bookchaowalit.com/blog/${slug}`
     },
     "keywords": (post.tags || []).join(", "),
     "articleSection": "Programming",
@@ -249,7 +231,7 @@ export default async function BlogPostPage({
               <p className="text-sm text-muted-foreground mb-2">Share this post:</p>
               <div className="flex justify-center gap-2">
                 <a
-                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(`https://tech.bookchaowalit.com/blog/${post.slug}`)}`}
+                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(`https://techblog.bookchaowalit.com/blog/${post.slug}`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 bg-background border rounded hover:bg-muted"
@@ -257,7 +239,7 @@ export default async function BlogPostPage({
                   <Twitter size={20} />
                 </a>
                 <a
-                  href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`https://tech.bookchaowalit.com/blog/${post.slug}`)}`}
+                  href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`https://techblog.bookchaowalit.com/blog/${post.slug}`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 bg-background border rounded hover:bg-muted"

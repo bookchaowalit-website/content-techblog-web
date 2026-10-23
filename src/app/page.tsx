@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRight, ChevronRight, Code2, Command, FileText, Github, Mail, Terminal, Twitter } from "lucide-react";
 import { Metadata } from "next";
+import { getAllPosts } from "@/lib/posts";
 
 export const metadata: Metadata = {
   title: "Home",
@@ -9,14 +10,16 @@ export const metadata: Metadata = {
 };
 
 const commands = ["blog", "contact", "--help"];
-const fileRows = [
-  { type: "DIR", name: "content/blog/", note: "1 article" },
-  { type: "FILE", name: "modern-react-development-best-practices.mdx", note: "14 min read" },
-  { type: "FILE", name: "README.md", note: "about this notebook" },
-];
+const shownDate = (date: string) => date.replaceAll("-", "—");
 
 export default function Home() {
-  const blogSchema = { "@context": "https://schema.org", "@type": "Blog", name: "Chaowalit Greepoke Tech Blog", url: "https://tech.bookchaowalit.com", author: { "@type": "Person", name: "Chaowalit Greepoke" }, blogPost: [{ "@type": "BlogPosting", headline: "Modern React Development Best Practices", url: "https://tech.bookchaowalit.com/blog/modern-react-development-best-practices", datePublished: "2024-01-15" }] };
+  const posts = getAllPosts();
+  const latest = posts[0];
+  const fileRows = [
+    { type: "DIR", name: "content/blog/", note: `${posts.length} ${posts.length === 1 ? "article" : "articles"}` },
+    ...posts.slice(0, 3).map((post) => ({ type: "FILE", name: `${post.slug}.mdx`, note: `${post.readingMinutes} min read` })),
+  ];
+  const blogSchema = { "@context": "https://schema.org", "@type": "Blog", name: "Chaowalit Greepoke Tech Blog", url: "https://techblog.bookchaowalit.com", author: { "@type": "Person", name: "Chaowalit Greepoke" }, blogPost: posts.map((post) => ({ "@type": "BlogPosting", headline: post.title, url: `https://techblog.bookchaowalit.com/blog/${post.slug}`, datePublished: post.date })) };
 
   return (
     <div className="techblog-home">
@@ -46,7 +49,7 @@ export default function Home() {
         <section className="techblog-lower-grid">
           <div className="techblog-panel techblog-article-panel">
             <div className="techblog-panel-label">01 / LATEST_DOCUMENT</div>
-            <div className="techblog-article-row"><div className="techblog-file-icon"><FileText size={20} /></div><div><p className="techblog-article-date">2024—01—15 · REACT / FRONTEND</p><Link href="/blog/modern-react-development-best-practices"><h2>Modern React Development<br />Best Practices</h2></Link><p>Patterns for building maintainable React applications with hooks, performance, and a clear component boundary.</p><span className="techblog-read-link">read article <ArrowUpRight size={13} /></span></div></div>
+            <div className="techblog-article-row"><div className="techblog-file-icon"><FileText size={20} /></div><div><p className="techblog-article-date">{shownDate(latest.date)} · {latest.tags.slice(0, 2).join(" / ").toUpperCase()}</p><Link href={`/blog/${latest.slug}`}><h2>{latest.title}</h2></Link><p>{latest.excerpt}</p><span className="techblog-read-link">read article <ArrowUpRight size={13} /></span></div></div>
           </div>
           <div className="techblog-panel techblog-directory-panel">
             <div className="techblog-panel-label">02 / DIRECTORY_LIST</div>

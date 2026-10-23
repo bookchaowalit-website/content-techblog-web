@@ -2,9 +2,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Metadata } from "next";
-import fs from 'fs';
-import path from 'path';
-import matter from 'gray-matter';
+import { getAllPosts } from '@/lib/posts';
 
 export const metadata: Metadata = {
   title: "Blog Posts",
@@ -34,40 +32,15 @@ export const metadata: Metadata = {
   },
 };
 
-async function getAllBlogPosts() {
-  const blogDir = path.join(process.cwd(), 'content/blog');
-  const files = fs.readdirSync(blogDir).filter(file => file.endsWith('.mdx'));
-  const posts = files.map(file => {
-    const slug = file.replace('.mdx', '');
-    const filePath = path.join(blogDir, file);
-    const fileContents = fs.readFileSync(filePath, 'utf8');
-    const { data } = matter(fileContents);
-    return {
-      slug,
-      sizeBytes: Buffer.byteLength(fileContents, "utf8"),
-      title: data.title,
-      excerpt: data.excerpt,
-      date: data.date,
-      // Normalize tags: allow an array, a comma-separated string, or undefined
-      tags: Array.isArray(data.tags)
-        ? data.tags
-        : typeof data.tags === 'string'
-        ? data.tags.split(',').map((t) => t.trim()).filter(Boolean)
-        : [],
-      author: data.author,
-    };
-  });
-  return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-}
-
 export default async function BlogPage() {
-  const posts = await getAllBlogPosts();
+  const posts = getAllPosts();
 
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <header className="mb-12">
-          <div className="ascii-title text-primary text-lg mb-4">
+          <h1 className="sr-only">Blog posts</h1>
+          <div className="ascii-title text-primary text-lg mb-4" aria-hidden="true">
 {`┌┐ ┬  ┌─┐┌─┐  ┌─┐┌─┐┌─┐┌┬┐┌─┐
 ├┴┐│  │ ││ ┬  ├─┘│ ││─┘ │ └─┐
 └─┘┴─┘└─┘└─┘  ┴  └─┘┴   ┴ └─┘`}
@@ -91,7 +64,7 @@ export default async function BlogPage() {
           </nav>
         </header>
 
-        <div className="grid gap-6 md:gap-8">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-6 md:gap-8">
           {posts.map((post) => (
             <Card key={post.slug} className="terminal-border">
               <CardHeader>
@@ -106,7 +79,7 @@ export default async function BlogPage() {
                       </Link>
                     </CardTitle>
                     <div className="text-sm text-muted-foreground font-mono space-y-1">
-                      <div>-rw-r--r-- 1 {post.author} {post.author} {post.sizeBytes} {post.date} {post.slug}.mdx</div>
+                      <div className="break-all">-rw-r--r-- 1 {post.author} {post.author} {post.sizeBytes} {post.date} {post.slug}.mdx</div>
                     </div>
                   </div>
                 </div>
@@ -129,7 +102,7 @@ export default async function BlogPage() {
                   href={`/blog/${post.slug}`}
                   className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all border-2 border-primary/20 bg-background shadow-sm hover:border-primary hover:bg-primary hover:text-primary-foreground hover:shadow-md dark:bg-input/30 dark:border-input dark:hover:bg-primary dark:hover:border-primary h-9 rounded-md gap-2 px-4 font-mono cursor-pointer focus:ring-2 focus:ring-primary focus:ring-offset-2 w-full justify-start transform hover:scale-[1.02] active:scale-[0.98] no-underline"
                 >
-                  📄 cat {post.slug}.mdx
+                  <span className="truncate">📄 cat {post.slug}.mdx</span>
                 </a>
               </CardContent>
             </Card>
@@ -137,7 +110,8 @@ export default async function BlogPage() {
         </div>
 
         <div className="mt-12 text-center">
-          <div className="ascii-art text-muted-foreground text-sm">
+          <p className="sr-only">End of file listing: {posts.length} file(s) found.</p>
+          <div className="ascii-art text-muted-foreground text-sm" aria-hidden="true">
 {`╭─────────────────────────────╮
 │     End of file listing     │
 │      ${posts.length} file(s) found        │

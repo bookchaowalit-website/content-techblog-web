@@ -39,8 +39,8 @@ export default function ContactPage() {
     "alternateName": "Book Chaowalit",
     "jobTitle": ["Tech Generalist", "Full-stack Developer", "Solopreneur"],
     "description": "Tech Generalist and Solopreneur who enjoys solving problems and building things end-to-end. Works across software engineering, data, AI, and digital growth.",
-    "url": "https://tech.bookchaowalit.com",
-    "image": "https://tech.bookchaowalit.com/profile-image.jpg",
+    "url": "https://techblog.bookchaowalit.com",
+    "image": "https://techblog.bookchaowalit.com/profile-image.jpg",
     "sameAs": [
       "https://linkedin.com/in/chaowalit-greepoke"
     ],
