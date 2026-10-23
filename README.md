@@ -2,6 +2,8 @@
 
 A modern tech blog built with Next.js, featuring a unique Text-Art ASCII design aesthetic.
 
+Live: https://techblog.bookchaowalit.com — five articles. Product truth and limits: [PRODUCT.md](PRODUCT.md).
+
 ```
 ┌┬┐┌─┐┌─┐┬ ┬  ┌┐ ┬  ┌─┐┌─┐
  │ ├┤ │  ├─┤  ├┴┐│  │ ││ ┬
@@ -104,14 +106,9 @@ its own `"use client"` file (`src/components/mdx-pre.tsx`) once wired up —
 
 ## Deployment
 
-This project is optimized for Vercel deployment:
-
-```bash
-# Deploy to Vercel
-vercel
-```
-
-The `vercel.json` configuration is already included for optimal deployment.
+The live site is the Vercel project `bookchaowalit-techblog-frontend`, deployed with the Vercel CLI (there is no
+`vercel.json`). That project is still linked to the repository's old name, so pushes to `main` run CI (lint, typecheck,
+tests, build, security scan) but do not deploy. The owner reconnects Vercel Git (D9) or approves a CLI deploy.
 
 ## Development
 
