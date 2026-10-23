@@ -21,17 +21,17 @@ export const metadata: Metadata = {
   },
   description: "Expert insights on modern web development, React, Next.js, TypeScript, and programming best practices by Chaowalit Greepoke (Book). Stay updated with the latest tech trends and tutorials from a Bangkok-based full-stack developer.",
   keywords: ["Chaowalit Greepoke", "Book Chaowalit", "web development", "programming", "React", "Next.js", "TypeScript", "JavaScript", "frontend", "backend", "tech tutorials", "best practices", "Bangkok developer", "Thai developer"],
-  authors: [{ name: "Chaowalit Greepoke (Book)", url: "https://tech.bookchaowalit.com" }],
+  authors: [{ name: "Chaowalit Greepoke (Book)", url: "https://techblog.bookchaowalit.com" }],
   creator: "Chaowalit Greepoke (Book)",
   publisher: "Chaowalit Greepoke (Book)",
-  metadataBase: new URL("https://tech.bookchaowalit.com"),
+  metadataBase: new URL("https://techblog.bookchaowalit.com"),
   alternates: {
     canonical: "/",
   },
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://tech.bookchaowalit.com",
+    url: "https://techblog.bookchaowalit.com",
     siteName: "Chaowalit Greepoke (Book) Tech Blog",
     title: "Chaowalit Greepoke (Book) Tech Blog | Modern Web Development & Programming Insights",
     description: "Expert insights on modern web development, React, Next.js, TypeScript, and programming best practices by Chaowalit Greepoke (Book).",
@@ -77,16 +77,16 @@ export default function RootLayout({
     "@type": "WebSite",
     "name": "Chaowalit Greepoke (Book) Tech Blog",
     "description": "Modern web development, programming tips, and tech insights by Chaowalit Greepoke (Book)",
-    "url": "https://tech.bookchaowalit.com",
+    "url": "https://techblog.bookchaowalit.com",
     "author": {
       "@type": "Person",
       "name": "Chaowalit Greepoke",
       "alternateName": "Book Chaowalit",
-      "url": "https://tech.bookchaowalit.com"
+      "url": "https://techblog.bookchaowalit.com"
     },
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://tech.bookchaowalit.com/search?q={search_term_string}",
+      "target": "https://techblog.bookchaowalit.com/search?q={search_term_string}",
       "query-input": "required name=search_term_string"
     }
   };
