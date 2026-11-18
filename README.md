@@ -1,6 +1,6 @@
 # Tech Blog
 
-A modern tech blog built with Next.js, featuring a unique Text-Art ASCII design aesthetic.
+A technical notebook built with Next.js and MDX, on the shared Reader shell ([READER.md](READER.md)).
 
 Live: https://techblog.bookchaowalit.com — five articles. Product truth and limits: [PRODUCT.md](PRODUCT.md).
 
@@ -13,9 +13,8 @@ Live: https://techblog.bookchaowalit.com — five articles. Product truth and li
 ## Features
 
 - 🚀 **Next.js 16** with App Router
-- 🎨 **shadcn/ui** components
+- 🎨 Shared **Reader shell** (search, topics, prose, previous/next)
 - 📝 **MDX** for blog content
-- 🎯 **Text-Art ASCII** design theme
 - 📱 **Responsive** design
 - 🌙 **Dark mode** support
 - ⚡ **Vercel** ready deployment
@@ -24,7 +23,7 @@ Live: https://techblog.bookchaowalit.com — five articles. Product truth and li
 
 - **Framework**: Next.js 16 with TypeScript
 - **Styling**: Tailwind CSS v4
-- **UI Components**: shadcn/ui
+- **UI**: Reader shell (`src/app/reader-shell.css`, `src/components/reader-shell.tsx`)
 - **Content**: MDX
 - **Deployment**: Vercel
 

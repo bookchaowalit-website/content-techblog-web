@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Analytics } from "@vercel/analytics/react"
-import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,20 +33,11 @@ export const metadata: Metadata = {
     siteName: "Chaowalit Greepoke (Book) Tech Blog",
     title: "Chaowalit Greepoke (Book) Tech Blog | Modern Web Development & Programming Insights",
     description: "Expert insights on modern web development, React, Next.js, TypeScript, and programming best practices by Chaowalit Greepoke (Book).",
-    images: [
-      {
-        url: "/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Chaowalit Greepoke (Book) Tech Blog - Modern Web Development Insights",
-      },
-    ],
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title: "Chaowalit Greepoke (Book) Tech Blog | Modern Web Development & Programming Insights",
     description: "Expert insights on modern web development, React, Next.js, TypeScript, and programming best practices by Chaowalit Greepoke (Book).",
-    images: ["/og-image.jpg"],
     creator: "@bookchaowalit",
   },
   robots: {
@@ -61,9 +50,6 @@ export const metadata: Metadata = {
       "max-image-preview": "large",
       "max-snippet": -1,
     },
-  },
-  verification: {
-    google: "your-google-verification-code",
   },
 };
 
@@ -86,29 +72,22 @@ export default function RootLayout({
     },
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://techblog.bookchaowalit.com/search?q={search_term_string}",
+      "target": "https://techblog.bookchaowalit.com/blog?q={search_term_string}",
       "query-input": "required name=search_term_string"
     }
   };
 
   return (
-    <html lang="en">
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <head>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {/* THESIS: Tech Blog is a technical notebook. OWN-WORLD: PC98 text window and phosphor accents. STORY: boot, inspect, open one note. FIRST VIEWPORT: show the machine frame and latest document. FORM: seed 1df06217 assigned PC98 window direction. FINISH: dithered texture, mono metadata, no fabricated volume. */}
-        <Analytics />
-        <SpeedInsights />
-        {children}
-      </body>
+      {/* The font variables sit on <html>: the Reader shell tokens live on :root and read them from there. */}
+      <body>{children}</body>
     </html>
   );
 }
 
-// SEO TODO: Add Open Graph tags for social sharing

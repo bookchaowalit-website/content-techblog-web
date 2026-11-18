@@ -62,10 +62,19 @@ What is not true or not done:
 - No performance evidence (no Lighthouse results are committed); the earlier portfolio claim of perfect scores was
   removed in the card claims review.
 - `/contact` is a static profile page with links; there is no contact form.
-- Vercel Web Analytics and Speed Insights components are mounted, but no custom events exist and no KPI baseline has
-  been captured (see `docs/measurement/KPI-PLAN.md`).
+- All five articles carry the same date (2026-10-15); the index orders them by title within a day.
+- No analytics: Vercel Web Analytics and Speed Insights were removed on 2026-11-19 (shared shell rule), so no KPI
+  baseline exists (see `docs/measurement/KPI-PLAN.md`).
 
 Live and deploy state: https://techblog.bookchaowalit.com (Vercel project `bookchaowalit-techblog-frontend`). The
 Next.js security patch build was deployed by CLI on 2026-10-23 (D9a). Pushes to `main` do not deploy (the Vercel
 project is linked to the old repository name), so the 375px hero fix, the data-driven home page, the domain fix and
 Sentry reach the live site only after the owner reconnects Vercel Git (D9) or approves another CLI deploy.
+
+## Reader shell move (2026-11-19)
+
+The site moved onto the shared Reader shell (READER.md): article search (`/blog?q=`) and topic filters
+(`/blog?tag=`), empty states, previous/next links, an About page on the shell, a generated sitemap, and
+`/more-projects` now redirects (308) to https://bookchaowalit.com/. The placeholder Google verification code,
+the SearchAction pointing at a missing `/search` page, the `example.com` email and the unverifiable LinkedIn
+count and response-time claims were removed.

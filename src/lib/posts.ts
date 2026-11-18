@@ -87,7 +87,39 @@ export function getAllPosts(): PostMeta[] {
   });
   const problems = checkPosts(posts);
   if (problems.length > 0) throw new Error(problems.join("\n"));
-  return posts.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+  return posts.sort(comparePosts);
+}
+
+/** Newest first; posts from the same day by title, so "latest" never depends on file names. */
+export function comparePosts(a: Pick<PostMeta, "date" | "title" | "slug">, b: Pick<PostMeta, "date" | "title" | "slug">): number {
+  if (a.date !== b.date) return a.date < b.date ? 1 : -1;
+  return a.title.localeCompare(b.title, "en", { sensitivity: "base" }) || (a.slug < b.slug ? -1 : a.slug > b.slug ? 1 : 0);
+}
+
+type Searchable = Pick<PostMeta, "title" | "summary" | "excerpt" | "tags">;
+
+/** The posts that carry the tag (when given) and contain every word of the query in title, summary, excerpt or tags. */
+export function filterPosts<T extends Searchable>(posts: T[], { q = "", tag = "" }: { q?: string; tag?: string }): T[] {
+  const words = q.toLowerCase().split(/\s+/).filter(Boolean);
+  return posts.filter((post) => {
+    if (tag && !post.tags.includes(tag)) return false;
+    const haystack = [post.title, post.summary, post.excerpt, ...post.tags].join(" ").toLowerCase();
+    return words.every((word) => haystack.includes(word));
+  });
+}
+
+/** Every tag once with how many posts use it, most used first, then by name. */
+export function tagCounts(posts: Pick<PostMeta, "tags">[]): { tag: string; count: number }[] {
+  const counts = new Map<string, number>();
+  for (const post of posts) for (const tag of new Set(post.tags)) counts.set(tag, (counts.get(tag) ?? 0) + 1);
+  return [...counts].map(([tag, count]) => ({ tag, count })).sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+}
+
+/** The page renders the title as its h1, so an article that opens with the same "# Title" line drops it. */
+export function stripLeadingTitle(content: string, title: string): string {
+  // Only the heading line and the blank lines after it go; the next line keeps its indentation.
+  const match = /^(?:[ \t]*\r?\n)*[ \t]*#[ \t]+(.+?)[ \t]*\r?\n(?:[ \t]*\r?\n)*/.exec(content);
+  return match && match[1] === title ? content.slice(match[0].length) : content;
 }
 
 export function getPost(slug: string): Post | null {

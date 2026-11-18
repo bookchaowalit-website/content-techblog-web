@@ -9,6 +9,10 @@ const nextConfig: NextConfig = {
   // /api/mcp is called cross-origin from bookchaowalit-devhub-frontend's
   // Playground. Without this, the browser blocks reading the response
   // even though the route itself works — see devhub's PRODUCT.md.
+  async redirects() {
+    // The old per-app portfolio list now lives on the main site (permanent: Next answers 308).
+    return [{ source: '/more-projects', destination: 'https://bookchaowalit.com/', permanent: true }];
+  },
   async headers() {
     return [
       {

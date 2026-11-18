@@ -10,7 +10,7 @@ set -euo pipefail
 HOME_MARKER="Tech Blog"
 HEALTH_PATH="/api/health"
 MAIN_ROUTE="/blog"
-MAIN_MARKER="Blog Posts"
+MAIN_MARKER="<h1>Articles</h1>"
 
 BASE="${1:?usage: deploy-smoke.sh <base-url> [expected-commit]}"
 BASE="${BASE%/}"

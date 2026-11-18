@@ -18,7 +18,7 @@ template: architecture-docs templates/sdlc/kpi-and-instrumentation-plan.md
 | Metric owner | Owner (bookchaowalit) |
 | AI maker | Claude Code (b-tier-b session, 2026-10-23) |
 | AI reviewer | independent Claude reviewer subagent (`solo:solo-reviewer`, Sonnet, read-only, no maker context), 2026-10-24: approved (see Approval) |
-| Analytics source of truth | planned: PostHog free tier (owner decision D4: chosen, but no account or project key yet). Live today: Sentry errors only (project `content-techblog-web`). Vercel Web Analytics/Speed Insights components are mounted in `src/app/layout.tsx`, but no custom events exist and whether Web Analytics is enabled on the Vercel project is not verified |
+| Analytics source of truth | planned: PostHog free tier (owner decision D4: chosen, but no account or project key yet). Live today: Sentry errors only (project `content-techblog-web`). Vercel Web Analytics/Speed Insights were removed on 2026-11-19 (Reader shell move) |
 | Dashboard | none yet |
 | Next review | 2026-11-15 (Big Loop milestone M1) |
 
@@ -93,4 +93,4 @@ Privacy and data rules:
 | Checker | independent Claude reviewer subagent (`solo:solo-reviewer`, Sonnet, read-only, no maker context) |
 | Approver | AI approval under the owner's process (approvals by the owner or AI with evidence; maker and checker are different agents). Recorded by Claude session oa-remainder on the owner's instruction "ทำที่เหลือให้หน่อย" (2026-10-24) |
 | Verdict | **approved** |
-| Evidence | src/lib/sentry.ts + test; layout mounts Analytics; mdx-pre.tsx copy button; no custom events. |
+| Evidence | src/lib/sentry.ts + test; no analytics mounted (removed 2026-11-19); mdx-pre.tsx copy button; no custom events. |
