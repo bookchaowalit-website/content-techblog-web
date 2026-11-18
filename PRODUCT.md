@@ -66,10 +66,11 @@ What is not true or not done:
 - No analytics: Vercel Web Analytics and Speed Insights were removed on 2026-11-19 (shared shell rule), so no KPI
   baseline exists (see `docs/measurement/KPI-PLAN.md`).
 
-Live and deploy state: https://techblog.bookchaowalit.com (Vercel project `bookchaowalit-techblog-frontend`). The
-Next.js security patch build was deployed by CLI on 2026-10-23 (D9a). Pushes to `main` do not deploy (the Vercel
-project is linked to the old repository name), so the 375px hero fix, the data-driven home page, the domain fix and
-Sentry reach the live site only after the owner reconnects Vercel Git (D9) or approves another CLI deploy.
+Live and deploy state: https://techblog.bookchaowalit.com (Vercel project `bookchaowalit-techblog-frontend`;
+tech.bookchaowalit.com redirects there). Checked 2026-11-19: the project's Git link is
+`bookchaowalit-website/content-techblog-web`, branch `main`, and pushes to `main` deploy production from Git (last
+Git production deploy 2026-11-14, commit 65316ad). A second, older Vercel project `tech-blog` (tech.ionomad.net) is
+linked to the same repository; its last deploy was 2026-02-28 from the pre-rename repository.
 
 ## Reader shell move (2026-11-19)
 
