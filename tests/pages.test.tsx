@@ -78,6 +78,9 @@ describe("article index", () => {
     expect(texts(host, ".rs-chip")).toEqual(["All1", "testing1", "timers1"]);
     const all = page(<IndexView posts={posts} />);
     expect(texts(all, ".rs-chip")).toEqual(["All4", "testing3", "dates1", "fetch1", "http1", "timers1"]);
+    const unknown = page(<IndexView posts={posts} tag={"w".repeat(100)} />);
+    expect(texts(unknown, ".rs-chip")).toEqual(["All4", "testing3", "dates1", "fetch1", "http1", "timers1"]);
+    expect(unknown.querySelector(".rs-empty h2")?.textContent).toBe("No articles match");
     const none = page(<IndexView posts={posts} q="kubernetes" tag="http" />);
     expect(texts(none, ".rs-chip")).toEqual(["All0", "http0"]);
     expect(none.querySelector('.rs-chip[aria-current="page"]')?.textContent).toBe("http0");
@@ -100,6 +103,8 @@ describe("article index", () => {
 describe("article", () => {
   it("renders the head, the body, share links and previous/next", () => {
     const host = page(<ArticleView post={posts[1]} previous={posts[0]} next={posts[2]}><p>Body</p></ArticleView>);
+    // The article is not the index page: the Articles link is not marked as the current page.
+    expect(host.querySelector('.rs-nav a[aria-current="page"]')).toBeNull();
     expect(host.querySelector(".rs-article-head h1")?.textContent).toBe("Pure timers");
     expect(texts(host, ".rs-meta li")).toEqual(["15 Oct 2026", "3 min read", "Technical Notes"]);
     expect(host.querySelector(".rs-prose")?.innerHTML).toBe("<p>Body</p>");
@@ -144,6 +149,16 @@ describe("article", () => {
 });
 
 describe("MDX components", () => {
+  it("compiles a Markdown table (GFM) into a real table inside the scroll region", async () => {
+    const { compileArticle } = await import("@/lib/compile-article");
+    const content = await compileArticle("| Tool | Use |\n| --- | --- |\n| fetch | HTTP |\n\n# Inner heading\n");
+    const html = renderToStaticMarkup(<>{content}</>);
+    expect(html).toContain('<div class="rs-table" role="region" aria-label="Table" tabindex="0"><table><thead><tr><th>Tool</th><th>Use</th></tr></thead>');
+    expect(html).toContain("<td>fetch</td>");
+    expect(html).toContain("<h2>Inner heading</h2>");
+    expect(html).not.toContain("<h1");
+  });
+
   it("renders a content h1 as h2 (the page has one h1) and wraps tables in a scroll region", async () => {
     const { useMDXComponents } = await import("../mdx-components");
     const c = useMDXComponents({}) as Record<string, (props: { children?: React.ReactNode }) => React.ReactNode>;

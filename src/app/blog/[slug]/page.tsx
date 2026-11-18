@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { compileMDX } from "next-mdx-remote/rsc";
-import remarkToc from "remark-toc";
 import { ArticleView, SITE } from "@/components/blog-views";
 import { neighbours } from "@/components/reader-shell";
+import { compileArticle } from "@/lib/compile-article";
 import { getAllPosts, getPost, stripLeadingTitle } from "@/lib/posts";
-import { useMDXComponents } from "../../../../mdx-components";
 
 export function generateStaticParams() {
   return getAllPosts().map((post) => ({ slug: post.slug }));
@@ -32,14 +30,7 @@ export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
   const post = getPost(slug);
   if (!post) notFound();
-  const { content } = await compileMDX({
-    source: stripLeadingTitle(post.content, post.title),
-    options: { mdxOptions: { remarkPlugins: [remarkToc] } },
-    // next-mdx-remote's compileMDX() needs the components passed in; useMDXComponents is the MDX naming
-    // convention, not a React Hook (it calls no hooks), so calling it here is safe.
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    components: useMDXComponents({}),
-  });
+  const content = await compileArticle(stripLeadingTitle(post.content, post.title));
   const posts = getAllPosts();
   const { previous, next } = neighbours(posts, posts.findIndex((p) => p.slug === slug));
   const articleSchema = {

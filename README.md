@@ -160,6 +160,6 @@ npm run build
 
 The Node test runner checks every article's metadata, compiles its MDX with the
 same compiler used by `/blog/[slug]`, and executes each complete JavaScript
-example. Use Node 22+ for the test command. A production preview of each slug
+example. Use Node 22.12+ or 24 (CI uses 24) for the test command; Vitest 5 needs it. A production preview of each slug
 checks the real page and component wiring. Publication remains a separate
 owner-reviewed release step.

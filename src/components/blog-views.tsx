@@ -12,7 +12,7 @@ import { filterPosts, tagCounts, type PostMeta } from "@/lib/posts";
 export const SITE = "https://techblog.bookchaowalit.com";
 const SOURCE = "https://github.com/bookchaowalit-website/content-techblog-web";
 
-type Section = "home" | "blog" | "about";
+type Section = "home" | "blog" | "article" | "about";
 
 export function TechFrame({ current, children }: { current: Section; children: ReactNode }) {
   return (
@@ -77,7 +77,8 @@ export function IndexView({ posts, q = "", tag = "" }: { posts: PostMeta[]; q?: 
   const matching = filterPosts(posts, { q });
   const shown = filterPosts(matching, { tag });
   const topics = tagCounts(matching);
-  if (tag && !topics.some((t) => t.tag === tag)) topics.push({ tag, count: 0 });
+  // A chip only for a tag some article has; an unknown ?tag= just shows the empty state.
+  if (tag && !topics.some((t) => t.tag === tag) && posts.some((p) => p.tags.includes(tag))) topics.push({ tag, count: 0 });
   return (
     <TechFrame current="blog">
       <ReaderHead title="Articles" lede="Short technical notes, each with a runnable example." />
@@ -110,7 +111,7 @@ export function ArticleView({ post, children, previous, next }: { post: PostMeta
   const url = `${SITE}/blog/${post.slug}`;
   const link = (p?: PostMeta): PagerLink | undefined => (p ? { href: `/blog/${p.slug}`, title: p.title } : undefined);
   return (
-    <TechFrame current="blog">
+    <TechFrame current="article">
       <article className="rs-article">
         <ArticleHeader back={{ href: "/blog", label: "All articles" }} tags={post.tags} title={post.title} lede={post.excerpt} date={post.date} meta={[`${post.readingMinutes} min read`, post.author]} />
         <Prose>{children}</Prose>

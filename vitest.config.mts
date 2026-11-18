@@ -10,7 +10,7 @@ export default defineConfig({
     include: ["tests/**/*.test.{ts,tsx}"],
     coverage: {
       provider: "v8",
-      include: ["src/app/**/page.tsx", "src/app/sitemap.ts", "src/components/**/*.tsx", "src/lib/posts.ts", "mdx-components.tsx"],
+      include: ["src/app/**/page.tsx", "src/app/sitemap.ts", "src/components/**/*.tsx", "src/lib/posts.ts", "src/lib/compile-article.ts", "mdx-components.tsx"],
       thresholds: { lines: 90 },
     },
   },
