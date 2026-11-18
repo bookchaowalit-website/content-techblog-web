@@ -73,7 +73,11 @@ export function HomeView({ posts }: { posts: PostMeta[] }) {
 }
 
 export function IndexView({ posts, q = "", tag = "" }: { posts: PostMeta[]; q?: string; tag?: string }) {
-  const shown = filterPosts(posts, { q, tag });
+  // Chip counts come from the posts that match the search, so each number is what a click on that chip shows.
+  const matching = filterPosts(posts, { q });
+  const shown = filterPosts(matching, { tag });
+  const topics = tagCounts(matching);
+  if (tag && !topics.some((t) => t.tag === tag)) topics.push({ tag, count: 0 });
   return (
     <TechFrame current="blog">
       <ReaderHead title="Articles" lede="Short technical notes, each with a runnable example." />
@@ -85,7 +89,7 @@ export function IndexView({ posts, q = "", tag = "" }: { posts: PostMeta[]; q?: 
             <SearchForm action="/blog" label="Search articles" placeholder="Title, topic or tag" defaultValue={q} hidden={tag ? { tag } : {}} clearHref={tagHref(tag)} />
             <TagFilter
               label="Filter by topic"
-              options={[{ label: "All", href: tagHref("", q), current: !tag, count: posts.length }, ...tagCounts(posts).map(({ tag: t, count }) => ({ label: t, href: tagHref(t, q), current: t === tag, count }))]}
+              options={[{ label: "All", href: tagHref("", q), current: !tag, count: matching.length }, ...topics.map(({ tag: t, count }) => ({ label: t, href: tagHref(t, q), current: t === tag, count }))]}
             />
             <ResultCount shown={shown.length} total={posts.length} noun="article" query={q || undefined} filter={tag ? `“${tag}”` : undefined} />
           </div>

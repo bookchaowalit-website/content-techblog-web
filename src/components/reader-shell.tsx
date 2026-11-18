@@ -1,4 +1,4 @@
-import type { ChangeEvent, ReactNode } from "react";
+import type { ChangeEvent, KeyboardEvent, MouseEvent, ReactNode } from "react";
 
 /**
  * Reader shell building blocks (styles in app/reader-shell.css) for content sites: blogs, notes, archives,
@@ -148,31 +148,56 @@ type SearchProps = {
 };
 
 /**
- * A labelled search field. On a server page it is a GET form with a Search button and a Clear link; given
- * onValueChange it filters live, so there is no button and Enter does not reload the page.
+ * A labelled search field. On a server page it is a GET form with a Search button and a Clear link. Given
+ * onValueChange it filters live: then it is not a form at all (a role="search" box, no name on the field), so
+ * Enter can never send the query to the server, even before JavaScript loads; Enter is also cancelled in case
+ * the box sits inside some other form. Clear empties the field and puts focus back in it.
  */
 export function SearchForm({ label, action, name = "q", placeholder, defaultValue, hidden = {}, clearHref, value, onValueChange, onClear }: SearchProps) {
-  const live = onValueChange !== undefined;
-  const current = live ? value : defaultValue;
+  const field = (
+    <label>
+      <span className="rs-search-label">{label}</span>
+      <input
+        type="search"
+        placeholder={placeholder}
+        autoComplete="off"
+        enterKeyHint="search"
+        {...(onValueChange
+          ? {
+              value: value ?? "",
+              onChange: (event: ChangeEvent<HTMLInputElement>) => onValueChange(event.target.value),
+              onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => { if (event.key === "Enter") event.preventDefault(); },
+            }
+          : { name, defaultValue })}
+      />
+    </label>
+  );
+  if (onValueChange) {
+    const clear = (event: MouseEvent<HTMLButtonElement>) => {
+      const input = event.currentTarget.parentElement?.querySelector("input");
+      onClear?.();
+      input?.focus();
+    };
+    return (
+      <div className="rs-search" role="search">
+        {field}
+        {value && onClear ? <button className="rs-plain" type="button" onClick={clear}>Clear</button> : null}
+      </div>
+    );
+  }
   return (
-    <form className="rs-search" role="search" action={action} method="get" onSubmit={live ? (event) => event.preventDefault() : undefined}>
-      <label>
-        <span className="rs-search-label">{label}</span>
-        <input
-          type="search"
-          name={name}
-          placeholder={placeholder}
-          autoComplete="off"
-          enterKeyHint="search"
-          {...(live ? { value: value ?? "", onChange: (event: ChangeEvent<HTMLInputElement>) => onValueChange(event.target.value) } : { defaultValue })}
-        />
-      </label>
+    <form className="rs-search" role="search" action={action} method="get">
+      {field}
       {Object.entries(hidden).map(([key, val]) => <input key={key} type="hidden" name={key} value={val} />)}
-      {live ? null : <button className="rs-button" type="submit">Search</button>}
-      {current && clearHref ? <a className="rs-plain" href={clearHref}>Clear</a> : null}
-      {current && onClear ? <button className="rs-plain" type="button" onClick={onClear}>Clear</button> : null}
+      <button className="rs-button" type="submit">Search</button>
+      {defaultValue && clearHref ? <a className="rs-plain" href={clearHref}>Clear</a> : null}
     </form>
   );
+}
+
+/** A wide table that scrolls sideways inside itself; the table keeps its real table display and semantics. */
+export function TableScroll({ label, children }: { label: string; children: ReactNode }) {
+  return <div className="rs-table" role="region" aria-label={label} tabIndex={0}>{children}</div>;
 }
 
 /** "5 articles", or "Showing 1 of 5 articles in Data for “fetch”" when something narrows the list. */

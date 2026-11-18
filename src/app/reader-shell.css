@@ -47,6 +47,7 @@
   }
 }
 :lang(th) { --rs-leading: 1.8; }
+/* Thai rules match the element's own language: lang="th" on Prose, a heading or an entry works inside an English page. */
 
 .rs { min-height: 100vh; display: flex; flex-direction: column; background: var(--rs-bg); color: var(--rs-fg); font-family: var(--rs-font); line-height: 1.5; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
 .rs *, .rs *::before, .rs *::after { box-sizing: border-box; }
@@ -75,8 +76,8 @@
 .rs-head h1, .rs-article-head h1 { margin: 0; font-size: clamp(32px, 5vw, 48px); font-weight: 700; letter-spacing: -.025em; line-height: 1.1; overflow-wrap: anywhere; text-wrap: balance; }
 .rs-lede { margin: 16px 0 0; color: var(--rs-muted); font-size: clamp(17px, 2.2vw, 21px); line-height: 1.5; text-wrap: pretty; }
 .rs-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
-:lang(th) .rs-head h1, :lang(th) .rs-article-head h1 { line-height: 1.35; letter-spacing: 0; }
-:lang(th) .rs-lede { line-height: 1.7; }
+.rs-head h1:lang(th), .rs-article-head h1:lang(th) { line-height: 1.35; letter-spacing: 0; }
+.rs-lede:lang(th) { line-height: 1.7; }
 
 /* Sections on index pages */
 .rs-section-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; margin-bottom: 12px; }
@@ -124,7 +125,7 @@
 .rs-entry-meta { order: 1; margin: 0; color: var(--rs-muted); font-size: 14px; font-variant-numeric: tabular-nums; }
 .rs-entry-summary { order: 3; margin: 0; max-width: var(--rs-measure); color: var(--rs-muted); font-size: 16px; line-height: var(--rs-leading); overflow-wrap: anywhere; }
 .rs-entry .rs-tags { order: 4; margin-top: 4px; }
-:lang(th) .rs-entry h2, :lang(th) .rs-entry h3 { line-height: 1.5; }
+.rs-entry h2:lang(th), .rs-entry h3:lang(th) { line-height: 1.5; }
 
 /* Tags: labels, not controls (filtering happens with .rs-chip) */
 .rs-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
@@ -153,7 +154,7 @@
 .rs-prose :where(h1, h2) { font-size: 1.55em; }
 .rs-prose h3 { font-size: 1.25em; }
 .rs-prose h4 { font-size: 1.05em; }
-:lang(th) .rs-prose :where(h1, h2, h3, h4) { line-height: 1.45; letter-spacing: 0; }
+.rs-prose :where(h1, h2, h3, h4):lang(th) { line-height: 1.45; letter-spacing: 0; }
 .rs-prose a { color: var(--rs-accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 .rs-prose a:hover { text-decoration-thickness: 2px; }
 .rs-prose :where(ul, ol) { padding-left: 1.4em; }
@@ -172,11 +173,15 @@
 .rs-code pre { margin: 0; padding-top: 52px; }
 .rs-copy { position: absolute; top: 4px; right: 4px; display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border: 0; border-radius: 980px; background: transparent; color: var(--rs-accent); font-family: var(--rs-font); font-size: 14px; cursor: pointer; }
 .rs-copy:hover { background: var(--rs-hover); }
+.rs-copy[data-state="failed"] { color: var(--rs-fg); font-weight: 600; }
 .rs-prose :where(img, video) { display: block; max-width: 100%; height: auto; border-radius: 12px; }
 .rs-prose figcaption { margin-top: 8px; color: var(--rs-muted); font-size: 15px; }
 .rs-prose hr { margin: 2.4em 0; border: 0; border-top: 1px solid var(--rs-line); }
-/* A wide table scrolls inside itself, never the page. */
-.rs-prose table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; font-size: 16px; font-variant-numeric: tabular-nums; }
+/* A wide table scrolls inside its .rs-table wrapper (TableScroll), never the page. The table itself keeps
+   display: table: block or flex display on table, tr or td drops the table semantics in Safari/VoiceOver. */
+.rs-table { max-width: 100%; overflow-x: auto; margin: 0 0 1.15em; }
+.rs-table > table { margin: 0; }
+.rs-prose table { border-collapse: collapse; font-size: 16px; font-variant-numeric: tabular-nums; }
 .rs-prose :where(th, td) { padding: 10px 14px 10px 0; border-bottom: 1px solid var(--rs-line); text-align: left; vertical-align: top; }
 .rs-prose th { font-weight: 600; white-space: nowrap; }
 
@@ -198,7 +203,9 @@
 @media (max-width: 640px) {
   .rs-top { position: static; padding-bottom: 4px; }
   .rs-brand small { display: none; }
-  .rs-nav { margin-left: -12px; }
+  /* The 16px gutter must hold the 3px ring and its 2px offset, so links pull left by at most 8px. */
+  .rs-nav { margin-left: -8px; }
+  .rs-back { margin-left: -8px; padding: 0 8px; }
   .rs-main { padding-top: 28px; }
   .rs-main > * + * { margin-top: 40px; }
   .rs-search label { max-width: none; }

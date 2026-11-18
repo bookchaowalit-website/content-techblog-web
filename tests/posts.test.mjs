@@ -75,6 +75,7 @@ test('stripLeadingTitle drops a first-line h1 that repeats the page title, and n
   assert.equal(stripLeadingTitle('\n# Same title\n\nBody', 'Same title'), 'Body');
   assert.equal(stripLeadingTitle('# Same title\n\n  - one\n  - two', 'Same title'), '  - one\n  - two');
   assert.equal(stripLeadingTitle('# Same title\r\n\r\n    code', 'Same title'), '    code');
+  assert.equal(stripLeadingTitle('# Same title ##\n\nBody', 'Same title'), 'Body');
   assert.equal(stripLeadingTitle('# Other\n\nBody', 'Same title'), '# Other\n\nBody');
   assert.equal(stripLeadingTitle('Intro\n# Same title', 'Same title'), 'Intro\n# Same title');
 });

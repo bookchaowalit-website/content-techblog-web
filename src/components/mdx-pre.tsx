@@ -28,7 +28,9 @@ export function Pre({ children }: { children?: ReactNode }) {
     <div className="rs-code">
       {/* tabIndex: a code block that scrolls sideways must be reachable from the keyboard. */}
       <pre tabIndex={0}>{children}</pre>
-      <button type="button" className="rs-copy" onClick={copy}>{state === "copied" ? "Copied" : "Copy code"}</button>
+      <button type="button" className="rs-copy" data-state={state} onClick={copy}>
+        {state === "copied" ? "Copied" : state === "failed" ? "Copy failed: select the code" : "Copy code"}
+      </button>
       <span className="rs-sr" role="status">{state === "copied" ? "Code copied" : state === "failed" ? "Could not copy the code" : ""}</span>
     </div>
   );

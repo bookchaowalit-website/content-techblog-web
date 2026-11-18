@@ -68,9 +68,19 @@ describe("article index", () => {
     expect(texts(host, ".rs-entry h2")).toEqual(["Fetch contracts"]);
     expect(host.querySelector(".rs-count")?.textContent).toBe("Showing 1 of 4 articles in “testing” for “fetch”");
     expect(host.querySelector('.rs-chip[aria-current="page"]')?.getAttribute("href")).toBe("/blog?tag=testing&q=fetch");
-    expect(host.querySelector('.rs-chip[href="/blog?q=fetch"]')?.textContent).toBe("All4");
+    expect(host.querySelector('.rs-chip[href="/blog?q=fetch"]')?.textContent).toBe("All1");
     expect(host.querySelector<HTMLInputElement>('input[type="hidden"]')?.value).toBe("testing");
     expect(host.querySelector(".rs-search a.rs-plain")?.getAttribute("href")).toBe("/blog?tag=testing");
+  });
+
+  it("counts each topic chip within the current search, so the number is what a click shows", () => {
+    const host = page(<IndexView posts={posts} q="timers" />);
+    expect(texts(host, ".rs-chip")).toEqual(["All1", "testing1", "timers1"]);
+    const all = page(<IndexView posts={posts} />);
+    expect(texts(all, ".rs-chip")).toEqual(["All4", "testing3", "dates1", "fetch1", "http1", "timers1"]);
+    const none = page(<IndexView posts={posts} q="kubernetes" tag="http" />);
+    expect(texts(none, ".rs-chip")).toEqual(["All0", "http0"]);
+    expect(none.querySelector('.rs-chip[aria-current="page"]')?.textContent).toBe("http0");
   });
 
   it("shows an empty state with a way back when nothing matches, and another when there are no articles", () => {
@@ -103,6 +113,7 @@ describe("article", () => {
     expect(host.querySelectorAll("h1").length).toBe(1);
     expect(host.querySelector(".rs-prose pre[tabindex='0']")).not.toBeNull();
     expect(host.querySelector(".rs-copy")?.textContent).toBe("Copy code");
+    expect(host.querySelectorAll(".rs-prose h1").length).toBe(0);
     expect(host.querySelector(".rs-pager")).not.toBeNull();
     expect((await generateMetadata({ params: Promise.resolve({ slug }) })).alternates?.canonical).toBe(`/blog/${slug}`);
   });
@@ -126,7 +137,20 @@ describe("article", () => {
     expect(host.querySelector("[role=status]")?.textContent).toBe("Code copied");
     await act(async () => button.click());
     expect(host.querySelector("[role=status]")?.textContent).toBe("Could not copy the code");
+    expect(button.textContent).toBe("Copy failed: select the code");
+    expect(button.getAttribute("data-state")).toBe("failed");
     act(() => root.unmount());
+  });
+});
+
+describe("MDX components", () => {
+  it("renders a content h1 as h2 (the page has one h1) and wraps tables in a scroll region", async () => {
+    const { useMDXComponents } = await import("../mdx-components");
+    const c = useMDXComponents({}) as Record<string, (props: { children?: React.ReactNode }) => React.ReactNode>;
+    expect(renderToStaticMarkup(<>{c.h1({ children: "Part" })}</>)).toBe("<h2>Part</h2>");
+    expect(renderToStaticMarkup(<>{c.table({ children: <tbody><tr><td>1</td></tr></tbody> })}</>)).toBe(
+      '<div class="rs-table" role="region" aria-label="Table" tabindex="0"><table><tbody><tr><td>1</td></tr></tbody></table></div>',
+    );
   });
 });
 
@@ -136,6 +160,9 @@ describe("site", () => {
     expect(host.querySelector('.rs-nav a[aria-current="page"]')?.textContent).toBe("About");
     expect(host.querySelector('a[href="mailto:bookchaowalit@gmail.com"]')).not.toBeNull();
     expect(host.innerHTML).not.toMatch(/example\.com|147\+|24 hours/);
+    const region = host.querySelector('.rs-table[role="region"]')!;
+    expect(region.getAttribute("aria-label")).toBe("Experience");
+    expect(region.querySelectorAll("table th[scope=col]").length).toBe(3);
   });
 
   it("lists every page and article in the sitemap", () => {

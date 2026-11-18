@@ -9,7 +9,7 @@ not installed. Copy these four files **byte for byte** (check with `sha256sum`):
 | File | What it holds |
 |---|---|
 | `app/reader-shell.css` (`src/app/` in a `src/` repo) | Tokens `--rs-*` (light + dark, same palette as the App and Dashboard shells), top bar, page head, buttons, search, chips, entry rows and cards, tags, empty state, article head, prose, code block with copy button, pager, footer, phone and forced-colors rules |
-| `components/reader-shell.tsx` (`src/components/`) | `Reader`, `ReaderTop`, `ReaderFoot`, `ReaderHead`, `EntryList`, `Tags`, `TagFilter`, `SearchForm`, `ResultCount`, `EmptyState`, `ArticleHeader`, `Prose`, `Pager`, and the helpers `formatDate`, `matchesQuery`, `neighbours`, `plural`. No hooks, no `"use client"`: every piece renders from a Server Component |
+| `components/reader-shell.tsx` (`src/components/`) | `Reader`, `ReaderTop`, `ReaderFoot`, `ReaderHead`, `EntryList`, `Tags`, `TagFilter`, `SearchForm`, `ResultCount`, `EmptyState`, `ArticleHeader`, `Prose`, `TableScroll`, `Pager`, and the helpers `formatDate`, `matchesQuery`, `neighbours`, `plural`. No hooks, no `"use client"`: every piece renders from a Server Component |
 | `tests/reader-shell.test.tsx` | Tests for the shell itself (pieces, helpers and the stylesheet floor), so a site that uses only part of it still covers all of it. Imports `@/components/reader-shell`, so `@` must point at the folder that holds `components/` |
 | `READER.md` | This file |
 
@@ -24,23 +24,30 @@ not installed. Copy these four files **byte for byte** (check with `sha256sum`):
   `aria-current="page"`) or, on a client page, buttons with `aria-pressed` and the `rs-chip` class.
 - **Search where it helps** (more than a handful of entries): `SearchForm`. On a server page it is a GET
   form with a Search button and a Clear link, and the page reads `searchParams`. On a client page pass
-  `value`, `onValueChange` and `onClear`; it then filters live and Enter does not reload.
+  `value`, `onValueChange` and `onClear`; it then filters live and is not a form (a `role="search"` box, no
+  field name, Enter cancelled), so the query never reaches the server, even before JavaScript loads. Clear
+  puts focus back in the field; do the same for any other "clear" button that removes itself.
+- **Filter counts follow the search**: a chip's number is what clicking it shows, so count within the
+  entries that match the current query.
 - **Always say how many show** with `ResultCount` (a `role="status"` line), and show an `EmptyState`
   that says what to do next, different for "nothing yet" and "nothing matches" (with a way back).
 - **Articles**: `ArticleHeader` (back link, tags, title, lede, meta with a machine-readable date), the body
   in `Prose`, then `Pager` (previous / next in the index order). If the content starts with the same
   `# Title` as the page h1, drop that line before rendering so there is one h1.
 - **Prose** styles raw Markdown/MDX HTML: headings, lists, links, quotes, inline code, code blocks, images,
-  figures, tables (a wide table scrolls inside itself) and rules. A code block that scrolls sideways gets
+  figures, tables and rules. Wrap every table in `TableScroll` (a labelled, focusable scroll region) so a wide
+  one scrolls inside itself; never set `display` on `table`, `tr` or `td`, which drops the table semantics in
+  Safari/VoiceOver. In MDX, map `table` to `TableScroll` and `h1` to `h2` so the page keeps one h1. A code block that scrolls sideways gets
   `tabIndex={0}`; a copy button is a `button.rs-copy` inside `div.rs-code` with a `role="status"` message.
 - **Reading measure 68ch** for heads, summaries and prose. Line height 1.65 for Latin text and 1.8 under
-  `:lang(th)` (Thai stacks marks above and below the line); put `lang="th"` on Thai content or pages.
+  `:lang(th)` (Thai stacks marks above and below the line); put `lang="th"` on Thai content or pages. The
+  Thai rules match the element's own language, so `<Prose lang="th">` works inside an English page.
 - **Top bar**: brand (links home), a few plain links, the hub link is added for you. Sticky on wider
   screens; on phones it wraps and scrolls away, so links are never hidden behind a menu.
 - **Footer**: `ReaderFoot` always links back to https://bookchaowalit.com/ ("More projects"), plus Source,
   Privacy and Status, optional extra links and one honest note about where the content comes from.
 - **Floor:** text ≥ 12px, controls ≥ 44px, 3px focus ring never clipped (no `overflow: hidden` around
-  focusable things), 4.5:1 text contrast and 3:1 control edges in light and dark (values in the CSS
+  focusable things; on phones nothing pulls left by more than 8px into the 16px gutter), 4.5:1 text contrast and 3:1 control edges in light and dark (values in the CSS
   header), forced-colors support, no horizontal scroll at 320px.
 
 ## Site conventions that go with the shell

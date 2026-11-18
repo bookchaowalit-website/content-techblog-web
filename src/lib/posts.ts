@@ -118,7 +118,8 @@ export function tagCounts(posts: Pick<PostMeta, "tags">[]): { tag: string; count
 /** The page renders the title as its h1, so an article that opens with the same "# Title" line drops it. */
 export function stripLeadingTitle(content: string, title: string): string {
   // Only the heading line and the blank lines after it go; the next line keeps its indentation.
-  const match = /^(?:[ \t]*\r?\n)*[ \t]*#[ \t]+(.+?)[ \t]*\r?\n(?:[ \t]*\r?\n)*/.exec(content);
+  // ATX headings may close with hashes ("# Title ##"), which are not part of the text.
+  const match = /^(?:[ \t]*\r?\n)*[ \t]*#[ \t]+(.+?)(?:[ \t]+#+)?[ \t]*\r?\n(?:[ \t]*\r?\n)*/.exec(content);
   return match && match[1] === title ? content.slice(match[0].length) : content;
 }
 

@@ -6,7 +6,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
-  ArticleHeader, EmptyState, EntryList, Pager, Prose, Reader, ReaderFoot, ReaderHead, ReaderTop, ResultCount, SearchForm, Tags, TagFilter,
+  ArticleHeader, EmptyState, EntryList, Pager, Prose, Reader, ReaderFoot, ReaderHead, ReaderTop, ResultCount, SearchForm, TableScroll, Tags, TagFilter,
   formatDate, matchesQuery, neighbours, plural,
 } from "@/components/reader-shell";
 
@@ -144,28 +144,48 @@ describe("index pieces", () => {
     expect(form.querySelector("a.rs-plain")?.getAttribute("href")).toBe("/blog");
   });
 
-  it("filters live in a client page: controlled value, no submit button, a Clear button", () => {
+  it("filters live in a client page: no form and no field name, so Enter never sends the query to the server", () => {
     function Live() {
       const [value, setValue] = useState("next");
       return <><SearchForm label="Find a path" value={value} onValueChange={setValue} onClear={() => setValue("")} placeholder="Title or topic" /><output>{value}</output></>;
     }
     render(<Live />);
-    const form = host.querySelector("form")!;
-    expect(form.querySelector("button[type=submit]")).toBeNull();
-    const input = form.querySelector<HTMLInputElement>("input")!;
+    expect(host.querySelector("form")).toBeNull();
+    const box = host.querySelector(".rs-search")!;
+    expect(box.getAttribute("role")).toBe("search");
+    expect(box.querySelector("button[type=submit]")).toBeNull();
+    const input = box.querySelector<HTMLInputElement>("input")!;
+    expect(input.hasAttribute("name")).toBe(false);
     expect(input.placeholder).toBe("Title or topic");
     act(() => {
-      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!;
-      setter.call(input, "data");
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(input, "data");
       input.dispatchEvent(new Event("input", { bubbles: true }));
     });
     expect(host.querySelector("output")?.textContent).toBe("data");
-    const submit = new Event("submit", { bubbles: true, cancelable: true });
-    act(() => { form.dispatchEvent(submit); });
-    expect(submit.defaultPrevented).toBe(true);
-    act(() => { (form.querySelector("button.rs-plain") as HTMLButtonElement).click(); });
-    expect(host.querySelector("output")?.textContent).toBe("");
-    expect(form.querySelector("button.rs-plain")).toBeNull();
+    const enter = new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true });
+    act(() => { input.dispatchEvent(enter); });
+    expect(enter.defaultPrevented).toBe(true);
+    const other = new KeyboardEvent("keydown", { key: "a", bubbles: true, cancelable: true });
+    act(() => { input.dispatchEvent(other); });
+    expect(other.defaultPrevented).toBe(false);
+  });
+
+  it("clears a live search and puts focus back in the field", () => {
+    function Live() {
+      const [value, setValue] = useState("x");
+      return <SearchForm label="Find" value={value} onValueChange={setValue} onClear={() => setValue("")} />;
+    }
+    render(<Live />);
+    act(() => { (host.querySelector("button.rs-plain") as HTMLButtonElement).click(); });
+    expect(host.querySelector<HTMLInputElement>("input")?.value).toBe("");
+    expect(document.activeElement).toBe(host.querySelector("input"));
+    expect(host.querySelector("button.rs-plain")).toBeNull();
+  });
+
+  it("wraps a wide table in a labelled, focusable scroll region and keeps the table itself", () => {
+    expect(html(<TableScroll label="Experience"><table><tbody><tr><td>x</td></tr></tbody></table></TableScroll>)).toBe(
+      '<div class="rs-table" role="region" aria-label="Experience" tabindex="0"><table><tbody><tr><td>x</td></tr></tbody></table></div>',
+    );
   });
 
   it("says how many entries show, with the query, as a status", () => {
@@ -234,6 +254,22 @@ describe("stylesheet floor", () => {
       const rule = css.split("\n").find((line) => line.startsWith(`${selector} {`));
       expect(rule, selector).toContain("min-height: 44px");
     }
+  });
+
+  it("never changes the display of table, tr or td (that drops table semantics in VoiceOver)", () => {
+    const tableRules = css.split("\n").filter((line) => /(^|[\s,])(table|tr|td|th)\b[^{]*\{/.test(line) && !line.trim().startsWith("/*"));
+    expect(tableRules.length).toBeGreaterThan(0);
+    for (const rule of tableRules) expect(rule, rule).not.toMatch(/display:/);
+    expect(css).toMatch(/\.rs-table \{[^}]*overflow-x: auto/);
+  });
+
+  it("applies Thai line heights by the element's own language and keeps focus rings inside the phone gutter", () => {
+    expect(css).toContain(".rs-prose :where(h1, h2, h3, h4):lang(th)");
+    expect(css).toContain(".rs-head h1:lang(th)");
+    expect(css).not.toMatch(/:lang\(th\) \.rs-/);
+    const phone = css.slice(css.indexOf("@media (max-width: 640px)"));
+    expect(phone).toContain(".rs-nav { margin-left: -8px; }");
+    expect(phone).toContain(".rs-back { margin-left: -8px;");
   });
 
   it("never sets text below 12px", () => {

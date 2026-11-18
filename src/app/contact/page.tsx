@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ReaderHead, Prose } from "@/components/reader-shell";
+import { ReaderHead, Prose, TableScroll } from "@/components/reader-shell";
 import { SITE, TechFrame } from "@/components/blog-views";
 
 const description = "About Chaowalit Greepoke (Book): a tech generalist and solopreneur in Bangkok working across software engineering, data, AI and digital growth.";
@@ -61,10 +61,12 @@ export default function ContactPage() {
           </section>
         ))}
         <h2>Experience</h2>
-        <table>
-          <thead><tr><th scope="col">Years</th><th scope="col">Role</th><th scope="col">Work</th></tr></thead>
-          <tbody>{EXPERIENCE.map(([years, role, work]) => <tr key={role}><td>{years}</td><td>{role}</td><td>{work}</td></tr>)}</tbody>
-        </table>
+        <TableScroll label="Experience">
+          <table>
+            <thead><tr><th scope="col">Years</th><th scope="col">Role</th><th scope="col">Work</th></tr></thead>
+            <tbody>{EXPERIENCE.map(([years, role, work]) => <tr key={role}><td>{years}</td><td>{role}</td><td>{work}</td></tr>)}</tbody>
+          </table>
+        </TableScroll>
         <h2>Current focus</h2>
         <ul><li>Freelance projects</li><li>AI integration</li><li>Full-stack development</li></ul>
       </Prose>
