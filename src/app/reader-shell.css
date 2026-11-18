@@ -105,6 +105,8 @@
 .rs-chip[aria-current="page"], .rs-chip[aria-pressed="true"] { border-color: var(--rs-fg); background: var(--rs-fg); color: var(--rs-bg); font-weight: 600; }
 .rs-chip small { color: inherit; font-size: 13px; font-variant-numeric: tabular-nums; opacity: .85; }
 .rs-count { margin: 0; color: var(--rs-muted); font-size: 15px; overflow-wrap: anywhere; }
+/* Results sit close to the toolbar that narrows them. */
+.rs-toolbar + .rs-list, .rs-toolbar + .rs-empty { margin-top: 24px; }
 
 /* Entries: rows (default) or cards. The title link covers the whole entry, so the entry is one large target. */
 .rs-list { display: grid; margin: 0; padding: 0; list-style: none; }
