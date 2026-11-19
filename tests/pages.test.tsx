@@ -169,6 +169,13 @@ describe("MDX components", () => {
     expect(html).toContain("<span>ok</span>");
   });
 
+  it("gives a raw JSX <pre> the code block: keyboard-scrollable with a copy button", async () => {
+    const { compileArticle } = await import("@/lib/compile-article");
+    const content = await compileArticle("<pre><code>npm run build</code></pre>\n");
+    const html = renderToStaticMarkup(<>{content}</>);
+    expect(html).toContain('<div class="rs-code"><pre tabindex="0"><code>npm run build</code></pre><button type="button" class="rs-copy"');
+  });
+
   it("renders a content h1 as h2 (the page has one h1) and wraps tables in a scroll region", async () => {
     const { useMDXComponents } = await import("../mdx-components");
     const c = useMDXComponents({}) as Record<string, (props: { children?: React.ReactNode }) => React.ReactNode>;

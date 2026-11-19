@@ -13,22 +13,23 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
     h1: ContentH1,
     table: ContentTable,
-    // Raw JSX <h1> and <table> written in an article are renamed to these by remarkRawJsxReaderRules,
+    // Raw JSX <h1>, <table> and <pre> written in an article are renamed to these by remarkRawJsxReaderRules,
     // so they follow the same rules as their Markdown forms.
     ReaderContentH1: ContentH1,
     ReaderContentTable: ContentTable,
+    ReaderContentPre: Pre,
     pre: Pre,
     ...components,
   };
 }
 
 type MdxNode = { type: string; name?: string | null; children?: MdxNode[] };
-const RAW_JSX_RENAMES: Record<string, string> = { h1: "ReaderContentH1", table: "ReaderContentTable" };
+const RAW_JSX_RENAMES: Record<string, string> = { h1: "ReaderContentH1", table: "ReaderContentTable", pre: "ReaderContentPre" };
 
 /**
- * MDX passes lowercase JSX tags such as <h1> or <table> straight through, past the components map. This
- * remark plugin renames them to the mapped components above, so raw JSX gets the h1 → h2 demotion and the
- * TableScroll wrapper too.
+ * MDX passes lowercase JSX tags such as <h1>, <table> or <pre> straight through, past the components map. This
+ * remark plugin renames them to the mapped components above, so raw JSX gets the h1 → h2 demotion, the
+ * TableScroll wrapper and the code block (copy button, keyboard-scrollable) too.
  */
 export function remarkRawJsxReaderRules() {
   const walk = (node: MdxNode) => {
