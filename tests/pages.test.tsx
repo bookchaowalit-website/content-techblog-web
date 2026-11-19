@@ -70,7 +70,7 @@ describe("article index", () => {
     expect(host.querySelector('.rs-chip[aria-current="page"]')?.getAttribute("href")).toBe("/blog?tag=testing&q=fetch");
     expect(host.querySelector('.rs-chip[href="/blog?q=fetch"]')?.textContent).toBe("All1");
     expect(host.querySelector<HTMLInputElement>('input[type="hidden"]')?.value).toBe("testing");
-    expect(host.querySelector(".rs-search a.rs-plain")?.getAttribute("href")).toBe("/blog?tag=testing");
+    expect(host.querySelector(".rs-search a.rs-plain")?.getAttribute("href")).toBe("/blog?tag=testing#rs-search-q");
   });
 
   it("counts each topic chip within the current search, so the number is what a click shows", () => {
@@ -157,6 +157,16 @@ describe("MDX components", () => {
     expect(html).toContain("<td>fetch</td>");
     expect(html).toContain("<h2>Inner heading</h2>");
     expect(html).not.toContain("<h1");
+  });
+
+  it("applies the same h1 and table rules to raw JSX written in the article", async () => {
+    const { compileArticle } = await import("@/lib/compile-article");
+    const content = await compileArticle('<h1 id="raw">Raw heading</h1>\n\n<table><tbody><tr><td>raw</td></tr></tbody></table>\n\nInline <span>ok</span>\n');
+    const html = renderToStaticMarkup(<>{content}</>);
+    expect(html).toContain('<h2 id="raw">Raw heading</h2>');
+    expect(html).not.toContain("<h1");
+    expect(html).toContain('<div class="rs-table" role="region" aria-label="Table" tabindex="0"><table><tbody><tr><td>raw</td></tr></tbody></table></div>');
+    expect(html).toContain("<span>ok</span>");
   });
 
   it("renders a content h1 as h2 (the page has one h1) and wraps tables in a scroll region", async () => {

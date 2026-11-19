@@ -29,7 +29,8 @@ not installed. Copy these four files **byte for byte** (check with `sha256sum`):
   form with a Search button and a Clear link, and the page reads `searchParams`. On a client page pass
   `value`, `onValueChange` and `onClear`; it then filters live and is not a form (a `role="search"` box, no
   field name, Enter cancelled), so the query never reaches the server, even before JavaScript loads. Clear
-  puts focus back in the field; do the same for any other "clear" button that removes itself.
+  puts focus back in the field in both modes (on a server page the Clear link ends in `#rs-search-<name>`,
+  the field's id, so the reloaded page focuses it); do the same for any other "clear" button that removes itself.
 - **Filter counts follow the search**: a chip's number is what clicking it shows, so count within the
   entries that match the current query.
 - **Chips stay on screen**: a chip never grows past its row and its label wraps. Build chips only from

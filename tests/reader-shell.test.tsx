@@ -142,7 +142,11 @@ describe("index pieces", () => {
     expect(form.querySelector<HTMLInputElement>('input[type="hidden"]')?.name).toBe("tag");
     expect(form.querySelector("label .rs-search-label")?.textContent).toBe("Search articles");
     expect(form.querySelector("button[type=submit]")?.textContent).toBe("Search");
-    expect(form.querySelector("a.rs-plain")?.getAttribute("href")).toBe("/blog");
+    // Clear reloads the page with the field as the fragment target, so focus lands back in the field.
+    expect(input.id).toBe("rs-search-q");
+    expect(form.querySelector("a.rs-plain")?.getAttribute("href")).toBe("/blog#rs-search-q");
+    render(<SearchForm label="Search" defaultValue="x" clearHref="/blog#top" />);
+    expect(host.querySelector("a.rs-plain")?.getAttribute("href")).toBe("/blog#top");
   });
 
   it("filters live in a client page: no form and no field name, so Enter never sends the query to the server", () => {
