@@ -130,6 +130,7 @@ describe("article", () => {
 
   it("copies a code block's text and says so", async () => {
     expect(textOf(["a", 1, null, false, <b key="b">c</b>])).toBe("a1c");
+    expect(textOf(["a", <br key="br" />, "b"])).toBe("a\nb");
     const writeText = vi.fn().mockResolvedValueOnce(undefined).mockRejectedValueOnce(new Error("denied"));
     Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
     const host = document.createElement("div");
@@ -174,6 +175,26 @@ describe("MDX components", () => {
     const content = await compileArticle("<pre><code>npm run build</code></pre>\n");
     const html = renderToStaticMarkup(<>{content}</>);
     expect(html).toContain('<div class="rs-code"><pre tabindex="0"><code>npm run build</code></pre><button type="button" class="rs-copy"');
+  });
+
+  it("keeps a raw <pre>'s attributes, so #anchors, lang and aria-label still work", async () => {
+    const { compileArticle } = await import("@/lib/compile-article");
+    const content = await compileArticle('<pre id="example" lang="sh" aria-label="Build command"><code>npm run build</code></pre>\n');
+    const html = renderToStaticMarkup(<>{content}</>);
+    expect(html).toContain('<pre id="example" lang="sh" aria-label="Build command" tabindex="0"><code>npm run build</code></pre>');
+  });
+
+  it("copies a <br /> inside a raw <pre> as a line break", async () => {
+    const { compileArticle } = await import("@/lib/compile-article");
+    const content = await compileArticle("<pre><code>npm ci<br />npm test</code></pre>\n");
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
+    const host = document.createElement("div");
+    const root = createRoot(host);
+    await act(async () => root.render(<>{content}</>));
+    await act(async () => host.querySelector<HTMLButtonElement>(".rs-copy")!.click());
+    expect(writeText).toHaveBeenCalledWith("npm ci\nnpm test");
+    act(() => root.unmount());
   });
 
   it("renders a content h1 as h2 (the page has one h1) and wraps tables in a scroll region", async () => {
