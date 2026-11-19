@@ -98,6 +98,7 @@ describe("index pieces", () => {
     render(<EntryList entries={entries} />);
     const list = host.querySelector(".rs-list")!;
     expect(list.getAttribute("data-layout")).toBe("rows");
+    expect(list.getAttribute("role")).toBe("list");
     const [first, second] = [...host.querySelectorAll(".rs-entry")];
     expect(first.querySelector("h2 a.rs-entry-link")?.getAttribute("href")).toBe("/a");
     expect(first.querySelector("time")?.getAttribute("datetime")).toBe("2026-10-15");
@@ -250,6 +251,10 @@ describe("stylesheet floor", () => {
     expect(css).toContain("@media (prefers-color-scheme: dark)");
     expect(css).toContain("@media (forced-colors: active)");
     expect(css).toContain("outline: 3px solid var(--rs-focus)");
+    // The focused entry link carries the ring itself (the design floor reads the focused element), never the card.
+    expect(css).toMatch(/^\.rs-entry-link:focus-visible \{ outline: 3px solid var\(--rs-focus\);/m);
+    expect(css).not.toMatch(/\.rs-entry:has\(/);
+    expect(css).not.toMatch(/\.rs-entry-link[^{]*\{[^}]*outline: none/);
     for (const selector of [".rs-nav a", ".rs-chip", ".rs-button, .rs-plain", ".rs-foot a", ".rs-back", ".rs-copy"]) {
       const rule = css.split("\n").find((line) => line.startsWith(`${selector} {`));
       expect(rule, selector).toContain("min-height: 44px");

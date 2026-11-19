@@ -98,8 +98,9 @@ function MetaLine({ date, meta = [] }: { date?: string; meta?: string[] }) {
 /** Index rows (default) or cards. Each title link covers its whole entry, so the entry is one large target. */
 export function EntryList({ entries, layout = "rows", headingLevel = 2 }: { entries: Entry[]; layout?: "rows" | "cards"; headingLevel?: 2 | 3 }) {
   const Heading = headingLevel === 3 ? "h3" : "h2";
+  // role="list": Safari/VoiceOver drops list semantics from a <ul> styled with list-style: none.
   return (
-    <ul className="rs-list" data-layout={layout}>
+    <ul className="rs-list" role="list" data-layout={layout}>
       {entries.map((entry) => (
         <li key={entry.href}>
           <article className="rs-entry">
